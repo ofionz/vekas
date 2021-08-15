@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex flex-column">
 
-    <v-container fluid>
-      <v-row>
+    <v-container fluid class="flex">
+      <v-row class="a-i-e w-80">
         <v-col style="text-align: left">
 
           <v-menu
@@ -48,9 +48,9 @@
 
 
       </v-row>
-      <v-row>
+      <v-row class="w-20 a-i-c">
         <v-col style="text-align: center">
-          <v-btn color="primary" @click="create"> Сформировать отчет</v-btn>
+          <v-btn color="primary" v-if="dates.length" @click="create"> Сформировать отчет</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -78,7 +78,12 @@
             row.name
           }}</a></td>
         <td class="main-table__wrap">
-          <table class="main-table">
+          <div v-if="row.message" class="main-table__error">
+          <span>
+            {{ row.message }}
+          </span>
+          </div>
+          <table v-else class="main-table">
 
             <tr class="main-table__date-wrap" :key="indexDate" v-for="(dateElem, indexDate) in row.dates.elements">
               <td class="main-table__date">{{ dateElem.date }}</td>
@@ -106,7 +111,7 @@
                         (indexType !== 0 ? ", " : ' ') + type
                       }}</span></td>
                     <td class="main-table__time">
-                      <span v-if="elem.planTime">
+                      <span :data-tooltip="secondsToHoursAndMinutes(elem.planTime*60*60)" v-if="elem.planTime">
                         План: {{ elem.planTime }}
                     </span>
                       <span data-tooltip="Укажите план часы в сделке - в поле 'Время на проект, ч' (UF_CRM_1628254497)"
@@ -114,29 +119,53 @@
                         План не задан.
                       </span>
                       <br/>
-                      <span v-bind:class="[Math.floor(elem.time/60/60 * 100) / 100>elem.planTime  ? 'errorClass' : '']">Факт: {{
-                          Math.floor(elem.time / 60 / 60 * 100) / 100
-                        }} ч. </span>
+                      <span :data-tooltip="secondsToHoursAndMinutes(elem.time)"
+                            v-bind:class="[secondsToHours(elem.time)>elem.planTime  ? 'errorClass' : '']">Факт: {{
+                          secondsToHours(elem.time)
+                        }} ч. <br/> <i v-if="elem.isTaskOpen">(в работе)</i> </span>
                     </td>
                   </tr>
                 </table>
               <td class="main-table__date-result">
-                <span>План: {{ dateElem.summaryPlanTime }}</span>
+                <span :data-tooltip="secondsToHoursAndMinutes(dateElem.summaryPlanTime*60*60)">План: {{
+                    dateElem.summaryPlanTime
+                  }}</span>
                 <br/>
-                <span>Факт: {{ Math.floor(dateElem.summaryTime / 60 / 60 * 100) / 100 }}</span>
+                <span
+                    v-bind:class="[secondsToHours(dateElem.summaryTime)>dateElem.summaryPlanTime  ? 'errorClass' : '']"
+                    :data-tooltip="secondsToHoursAndMinutes(dateElem.summaryTime)">Факт: {{
+                    secondsToHours(dateElem.summaryTime)
+                  }}</span>
 
               </td>
             </tr>
-
             <tr class="result">
               <td class="main-table__sum">Итого за период</td>
               <td colspan="6" class="main-table__result">
-                <div class="main-table__summary">{{row.dates.summary.summaryTime / 60 / 60}}
-                  <br/>
-                  {{  row.dates.summary.summaryPlanTime }}
-                  <br/>
-                  {{  row.dates.summary.taskCount }}
-                  <br/>
+                <div class="main-table__summary">
+                  <p>
+                    Количество поставленных задач: <br/> <b>{{ row.dates.summary.taskCount }} </b>
+                    (в работе :<b>
+                    {{ row.dates.summary.openTaskCount }} </b>)
+                  </p>
+                  <p :data-tooltip="secondsToHoursAndMinutes( row.dates.summary.summaryPlanTime*60*60)">
+                    Норма времени за период (план): <br/> <b>{{ row.dates.summary.summaryPlanTime }} ч. </b>
+                  </p>
+                  <p :data-tooltip="secondsToHoursAndMinutes(row.dates.summary.summaryTime )">
+                    Затраченное время (факт): <br/> <b>{{
+                      secondsToHours(row.dates.summary.summaryTime)
+                    }} ч. </b>
+                  </p>
+                  <p :data-tooltip="secondsToHoursAndMinutes(row.dates.summary.behindPlan )">
+                    Время отставания от плана:
+                    <br/>
+                    <b v-if="row.dates.summary.behindPlan>0">{{
+                        secondsToHours(row.dates.summary.behindPlan)
+                      }}
+                      ч.</b>
+                    <b v-else> нет </b>
+                  </p>
+
                 </div>
               </td>
             </tr>
@@ -175,17 +204,46 @@ export default {
     }
   },
   computed: {
+
     dateRangeText() {
       if (!this.dates.length) {
         return "Выберите дату"
       } else if (this.dates.length === 1) {
-        return "Отчет за " + this.dates[0];
+        return "Отчет за " + this.formatDate(this.dates[0]);
       } else {
-        return "Период с " + this.dates[0] + " по " + this.dates[1];
+        return "Период с " + this.formatDate(this.dates[0]) + " по " + this.formatDate(this.dates[1]);
       }
     }
   },
   methods: {
+    secondsToHours(seconds) {
+      return Math.floor(seconds / 60 / 60 * 100) / 100
+    },
+    secondsToHoursAndMinutes(seconds) {
+
+      seconds = Number(seconds);
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor(seconds % 3600 / 60);
+      var s = Math.floor(seconds % 3600 % 60);
+
+      var hDisplay = h > 0 ? h + 'ч. ' : "";
+      var mDisplay = m > 0 ? m + "мин. " : "";
+      var sDisplay = s > 0 ? s + "сек. " : "";
+      if (!h && !m && !s) {
+        return 0
+      }
+      return hDisplay + mDisplay + sDisplay;
+    },
+    formatDate(arg) {
+      let date = new Date(arg);
+      let dd = date.getDate();
+      if (dd < 10) dd = '0' + dd;
+      let mm = date.getMonth() + 1;
+      if (mm < 10) mm = '0' + mm;
+      let yy = date.getFullYear() % 100;
+      if (yy < 10) yy = '0' + yy;
+      return dd + '.' + mm + '.' + yy;
+    },
     getUserName(id) {
       return this.allUsers.find((user) => user.value == id).text;
     },
@@ -195,13 +253,31 @@ export default {
     },
 
     async fetchTimeData(userId) {
-      let timeRecords;
+      let startDate;
+      let finishDate;
+      if (this.dates.length === 1) {
+        startDate = new Date(this.dates[0]);
+        finishDate = new Date(this.dates[0]);
+      } else {
+        if (new Date(this.dates[0])>new Date(this.dates[1])) {
+          startDate = new Date(this.dates[1]);
+          finishDate = new Date(this.dates[0]);
+        }
+       else {
+          startDate = new Date(this.dates[0]);
+          finishDate = new Date(this.dates[1]);
+        }
+      }
+      startDate.setHours(0, 0, 0);
+      finishDate.setHours(23, 59, 59);
+      let timeRecords = [];
       await this.callMethod(
           'task.elapseditem.getlist',
-          [{'ID': 'desc'}, {'>=CREATED_DATE': '2021-01-01', '<CREATED_DATE': '2021-09-01', "USER_ID": userId}]
+          [{'ID': 'desc'}, {'>=CREATED_DATE': startDate.toISOString(), '<CREATED_DATE': finishDate.toISOString(), "USER_ID": userId}]
       ).then(function (res) {
         timeRecords = res;
       });
+
 
       return timeRecords;
     },
@@ -260,11 +336,12 @@ export default {
         taskCount: 0,
         openTaskCount: 0,
         summaryPlanTime: 0,
+        behindPlan: 0,
         summaryRecordedTasks: [],
       };
       timeRecords.forEach((timeRecord) => {
-        let date = new Date(timeRecord.CREATED_DATE);
-        date = date.getDate() + '.' + date.getMonth() + '.' + date.getFullYear();
+        let date = this.formatDate(timeRecord.CREATED_DATE);
+
         let task = needleTasks.find((tsk) => tsk.id === timeRecord.TASK_ID);
         let deal;
         if (task) {
@@ -274,6 +351,7 @@ export default {
             let rows = [];
             rows.push({
               taskId: task.id,
+              isTaskOpen: task.status != 5,
               time: parseInt(timeRecord.SECONDS),
               companyId: deal.COMPANY_ID,
               company: deal.companyName,
@@ -299,6 +377,7 @@ export default {
             if (!innerRow) {
               curDateData.rows.push({
                 taskId: task.id,
+                isTaskOpen: task.status != 5,
                 time: parseInt(timeRecord.SECONDS),
                 companyId: deal.COMPANY_ID,
                 company: deal.companyName,
@@ -320,14 +399,16 @@ export default {
           summary.summaryTime += parseInt(timeRecord.SECONDS);
 
           if (summary.summaryRecordedTasks.indexOf(task.id) === -1) {
-            console.log(task)
-            if (task.status !== 5) summary.openTaskCount++;
+            if (task.status != 5) summary.openTaskCount++;
             summary.taskCount++;
             summary.summaryPlanTime += deal.UF_CRM_1628254497 ? parseInt(deal.UF_CRM_1628254497) : 0;
             summary.summaryRecordedTasks.push(task.id);
           }
         }
       })
+
+
+      summary.behindPlan = (summary.summaryPlanTime * 60 * 60 - summary.summaryTime) * -1;
 
       return {elements: res, summary: summary};
 
@@ -374,18 +455,18 @@ export default {
       for (let userId of users) {
 
         let timeData = await this.fetchTimeData(userId);
-        let tasks = await this.fetchTasks(timeData);
-        let deals = await this.fetchDeals(this.filterDealIds(timeData, tasks), prop);
-        let data = this.sumSpentTime(timeData, tasks, deals);
-        if (data) {
 
-          this.table.push({name: this.getUserName(userId), userId: userId, dates: data});
+        if (timeData.length) {
+          let tasks = await this.fetchTasks(timeData);
+          let deals = await this.fetchDeals(this.filterDealIds(timeData, tasks), prop);
+          let data = this.sumSpentTime(timeData, tasks, deals);
+          if (data) {
+            this.table.push({name: this.getUserName(userId), userId: userId, dates: data});
+          }
+        } else {
+          this.table.push({name: this.getUserName(userId), userId: userId, message: 'Данные за период отсутствуют'});
         }
       }
-
-
-
-
     },
     changed(el) {
       this.selectedUsers = el.selected;
@@ -396,8 +477,28 @@ export default {
 </script>
 
 <style scoped>
+b {
+  font-size: 16px;
+}
+
+.w-80 {
+  width: 80%;
+}
+
+.w-20 {
+  width: 20%;
+}
+
 .flex {
   display: flex;
+}
+
+.a-i-e {
+  align-items: end;
+}
+
+.a-i-c {
+  align-items: center;
 }
 
 .grid {
@@ -501,7 +602,7 @@ export default {
 
 .main-table__summary {
   display: flex;
-  gap: 5px;
+  gap: 45px;
   font-size: 12px;
   text-align: center;
 }
@@ -515,7 +616,7 @@ export default {
 }
 
 .errorClass {
-  color: red;
+  color: #c90000;
 }
 
 [data-tooltip] {
@@ -540,5 +641,10 @@ export default {
 [data-tooltip]:hover::after {
   opacity: 1;
   top: 2em;
+}
+
+.main-table__error {
+  text-align: center;
+  margin: 30px;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <v-app >
-    <MethodistsReport v-on:dblclick.native="refresh"/>
+    <MethodistsReport/>
   </v-app>
 </template>
 
@@ -15,9 +15,6 @@ export default {
   },
 
 methods: {
-    refresh() {
-      window.location = window.location.href
-    }
 },
 
   data: () => ({

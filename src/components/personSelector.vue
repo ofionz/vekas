@@ -6,6 +6,8 @@
         :menu-props="{ maxHeight: '400' }"
         label="Выберите сотрудников"
         multiple
+        clearable
+        deletable-chips
         chips
         @change="selectHandler"
         hint="Или оставьте поле пустым для того чтобы выбрать весь отдел методистов"
