@@ -1,24 +1,57 @@
 <template>
-  <v-app >
-    <MethodistsReport/>
+  <v-app  >
+    <v-overlay :value="isPreloader">
+      <span >Идет формирование отчета...</span>
+    </v-overlay>
+    <v-card hover color="primary" class="text-center">
+      <h2 @click="window.location.reload(false)"  style="color: white">Отчет чего то там</h2>
+      <v-tabs dark background-color="primary" show-arrows centered>
+        <v-tab to="/main" >
+          Проекты
+        </v-tab>
+        <v-tab to="/managers" >
+          Менеджеры
+        </v-tab>
+        <v-tab to="/settings" >
+          Настройки
+        </v-tab>
+      </v-tabs>
+    </v-card>
+    <v-main  >
+      <router-view />
+    </v-main>
+
   </v-app>
 </template>
 
 <script>
-import MethodistsReport from './pages/MethodistsReport';
+
 
 export default {
   name: 'App',
 
   components: {
-    MethodistsReport,
+  },
+  created() {
+    this.$eventBus.$on("preloader", ()=> this.isPreloader = !this.isPreloader);
   },
 
-methods: {
+  methods: {
 },
-
+  computed: {
+    window: () => window,
+  },
   data: () => ({
-    //
+    isPreloader: false,
   }),
 };
 </script>
+<style >
+body, html {
+  overflow-y: auto!important;
+}
+.v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content {
+  box-shadow: none !important;
+}
+
+</style>
