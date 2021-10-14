@@ -1,10 +1,10 @@
 <template>
   <v-app  >
     <v-overlay :value="isPreloader">
-      <span >Идет формирование отчета...</span>
+      <span >Идет формирование отчёта...</span>
     </v-overlay>
     <v-card hover color="primary" class="text-center">
-      <h2 @click="window.location.reload(false)"  style="color: white">Отчет чего то там</h2>
+      <h2 @click="window.location.reload(false)"  style="color: white">Отчёт</h2>
       <v-tabs dark background-color="primary" show-arrows centered>
         <v-tab to="/main" >
           Проекты

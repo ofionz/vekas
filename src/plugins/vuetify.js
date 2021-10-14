@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib/framework';
+import ru from "../locales/ru";
 
 Vue.use(Vuetify);
 
@@ -14,5 +15,9 @@ export default new Vuetify({
                 submit: '#00E676'
             },
         },
+    },
+    lang: {
+        locales: { ru },
+        current: "ru",
     },
 });

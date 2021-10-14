@@ -14,7 +14,7 @@
           <v-text-field
               style="min-width: 300px "
               v-model="dateRangeText"
-              label="Выберите дату или диапазон отчета"
+              label="Выберите дату или диапазон отчёта"
               prepend-icon="mdi-calendar"
               readonly
               v-bind="attrs"
@@ -51,7 +51,7 @@
           :color="currentUser?'' :'submit'"
           @click="addUser"
       >
-        {{ currentUser ? 'Сменить сотрудника' : 'Выбрать сотурдника' }}
+        {{ currentUser ? 'Сменить сотрудника' : 'Выбрать сотрудника' }}
 
       </v-btn>
       <div v-if="currentUser" class="ml-10 d-flex">
@@ -70,29 +70,31 @@
 
 
     <div v-for="(group, index) in reportData" :key="index" class="v-input">
-      <v-card class="ma-4">
+      <v-card width="98%" class="ma-4">
         <v-card-title class="d-flex flex-column">
         <span>
           {{ group.date }}
         </span>
-          <span>
+          <span class="date_subheader">
+          {{ formatTime(group.minTime) }} - {{ formatTime(group.maxTime) }}
+        </span>
+          <span class="date_subheader">
            {{ secondsToHoursAndMinutes(group.seconds) }}
         </span>
         </v-card-title>
 
-        <v-card-text class="d-flex flex-column">
-          <div v-for="(elem, ind) in group.elements" :key="ind">
-<!--            <a class="mr-3"-->
-<!--                target="_blank"-->
-<!--                :href="'https://coko1.bitrix24.ru/company/personal/user/1/tasks/task/view/'+elem.task.id+'/'"> <span >{{ (elem.task.title) }}</span>-->
-<!--            </a>-->
-            <span class="mr-3">{{ (elem.task.title) }}</span>
+        <v-card-text class="d-flex flex-column justify-center align-center">
 
+          <v-card hover :outlined="!(selected===elem.ID)" width="60%" class="tasks-wrap" @click="openTask(elem.task.id)"
+                  :ref="'row'+elem.ID" v-for="(elem, ind) in group.elements" :key="ind">
+            <span class="mr-3 task-name">{{ (elem.task.title) }}</span>
             <span class="mr-3">  {{ formatTime(elem.DATE_START) }} - {{ formatTime(elem.DATE_STOP) }} </span>
-            <span>  {{ secondsToHoursAndMinutes((new Date(elem.DATE_STOP) - new Date(elem.DATE_START)) / 1000) }} </span>
+            <span>  {{
+                secondsToHoursAndMinutes((new Date(elem.DATE_STOP) - new Date(elem.DATE_START)) / 1000)
+              }} </span>
 
-          </div>
-          <Timeline :group = "group"/>
+          </v-card>
+          <Timeline @hover="selectRow" :group="group"/>
         </v-card-text>
 
       </v-card>
@@ -112,21 +114,23 @@ export default {
   },
   data() {
     return {
-      dates: [(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)],
+      dates: [(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10), (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)],
       modal: false,
       currentUser: undefined,
-      reportData: []
+      reportData: [],
+      selected: '',
     }
   },
   created() {
     this.$on('userChanged', this.createReport)
+
   },
   computed: {
     dateRangeText() {
       if (!this.dates.length) {
         return "Выберите дату"
       } else if (this.dates.length === 1) {
-        return "Отчет за " + this.formatDate(this.dates[0]);
+        return "Отчёт за " + this.formatDate(this.dates[0]);
       } else {
         if (this.dates[0] < this.dates[1])
           return "Период с " + this.formatDate(this.dates[0]) + " по " + this.formatDate(this.dates[1]);
@@ -135,6 +139,14 @@ export default {
     }
   },
   methods: {
+    openTask(id) {
+      window.open('https://ooovekas.bitrix24.ru/company/personal/user/' + window.USER.ID + '/tasks/task/view/' + id + '/', '_blank');
+
+    },
+    selectRow(el) {
+      if (el) this.selected = el.id;
+      else this.selected = '';
+    },
     async fetchTimeData() {
       let startDate;
       let finishDate;
@@ -172,7 +184,6 @@ export default {
       return timeRecords;
     },
     secondsToHoursAndMinutes(seconds) {
-      console.log(seconds)
       seconds = Number(seconds);
       var h = Math.floor(seconds / 3600);
       var m = Math.floor(seconds % 3600 / 60);
@@ -210,6 +221,7 @@ export default {
     },
 
     async createReport() {
+      this.reportData = [];
       this.$refs.dialog.save(this.dates)
       if (this.dates && this.currentUser) {
         let timeRecords = await this.fetchTimeData();
@@ -237,7 +249,6 @@ export default {
             group.seconds = group.seconds + ((new Date(elem.DATE_STOP) - new Date(elem.DATE_START)) / 1000);
           }
         })
-        console.log(this.reportData)
       }
     },
     formatDate(arg) {
@@ -279,5 +290,19 @@ export default {
 </script>
 
 <style scoped>
+.date_subheader {
+  color: grey;
+  font-size: 15px;
+}
 
+.tasks-wrap {
+  min-width: 500px;
+  display: grid;
+  grid-template-columns: repeat(3, 400px 150px 100px);
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.task-name {
+}
 </style>

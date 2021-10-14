@@ -27,6 +27,9 @@ async function start () {
         render: h => h(App),
       }).$mount('#app');
     });
+    BX24.callMethod('user.current', {}, function(res){
+     window.USER = res.answer.result;
+    })
   } else {
     new Vue({
       router,
