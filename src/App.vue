@@ -4,13 +4,14 @@
       <span >Идет формирование отчёта...</span>
     </v-overlay>
     <v-card hover color="primary" class="text-center">
-      <h2 @click="window.location.reload(false)"  style="color: white">Отчёт</h2>
+<!--      <h2 @click="window.location.reload(false)"  style="color: white">Отчёт</h2>-->
+      <h2 style="color: white">Отчёт</h2>
       <v-tabs dark background-color="primary" show-arrows centered>
         <v-tab to="/main" >
           Проекты
         </v-tab>
         <v-tab to="/managers" >
-          Менеджеры
+          Сотрудники
         </v-tab>
         <v-tab to="/settings" >
           Настройки
