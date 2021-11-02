@@ -1,25 +1,25 @@
 <template>
-  <v-app  >
+  <v-app>
     <v-overlay :value="isPreloader">
-      <span >Идет формирование отчёта...</span>
+      <span>Идет формирование отчёта...</span>
     </v-overlay>
     <v-card hover color="primary" class="text-center">
-<!--      <h2 @click="window.location.reload(false)"  style="color: white">Отчёт</h2>-->
-      <h2 style="color: white">Отчёт</h2>
+            <h2 @click="window.location.reload(false)"  style="color: white">Отчёт</h2>
+<!--      <h2 style="color: white">Отчёт</h2>-->
       <v-tabs dark background-color="primary" show-arrows centered>
-        <v-tab to="/main" >
+        <v-tab to="/main">
           Проекты
         </v-tab>
-        <v-tab to="/managers" >
+        <v-tab to="/managers">
           Сотрудники
         </v-tab>
-        <v-tab to="/settings" >
+        <v-tab to="/settings">
           Настройки
         </v-tab>
       </v-tabs>
     </v-card>
-    <v-main  >
-      <router-view />
+    <v-main>
+      <router-view/>
     </v-main>
 
   </v-app>
@@ -31,14 +31,12 @@
 export default {
   name: 'App',
 
-  components: {
-  },
+  components: {},
   created() {
-    this.$eventBus.$on("preloader", ()=> this.isPreloader = !this.isPreloader);
+    this.$eventBus.$on("preloader", () => this.isPreloader = !this.isPreloader);
   },
 
-  methods: {
-},
+  methods: {},
   computed: {
     window: () => window,
   },
@@ -47,10 +45,11 @@ export default {
   }),
 };
 </script>
-<style >
+<style>
 body, html {
-  overflow-y: auto!important;
+  overflow-y: auto !important;
 }
+
 .v-data-table > .v-data-table__wrapper tbody tr.v-data-table__expanded__content {
   box-shadow: none !important;
 }

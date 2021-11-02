@@ -36,7 +36,7 @@ export const bx24methods = {
                                 resolve(finalResult);
                             }))
                         } else if (response.more()) {
-                                response.next();
+                            response.next();
                         } else {
                             Vue.prototype.$eventBus.$emit('preloader')
                             resolve(result);
@@ -46,6 +46,7 @@ export const bx24methods = {
             })
 
         },
+
 
 
         async pageNavigationMethod(methodName, params) {

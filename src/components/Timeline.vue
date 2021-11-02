@@ -23,21 +23,24 @@
       <svg v-for="(elem, index) in elements" :key="index" class="subsidiary-svg">
         <defs>
 
-          <pattern id="pattern"
+          <pattern :id="'pattern'+elem.id"
                    width="8" height="10"
                    patternUnits="userSpaceOnUse"
                    patternTransform="rotate(45 50 50)">
-            <line stroke="#222451" stroke-width="7px" y2="10"/>
+            <line  :stroke="elem.pause ?'#DC143C':'#222451'"
+                  stroke-width="7px" y2="10"/>
           </pattern>
 
         </defs>
 
         <rect
+            style="cursor: pointer"
+            @click="onClickElem(elem)"
             @mouseenter=" (event)=> onRectHover (event, elem)"
             @mouseleave="(event) =>   onRectHover (event, elem)"
             :x="elem.startHour*hour+'vw'" y="10"
             :width="elem.duration*hour+'vw'" height="30"
-            fill="url(#pattern)"
+            :fill="'url(#pattern'+elem.id+')'"
             opacity="0.4"
             stroke="#222451"
             stroke-width="1px"
@@ -80,17 +83,26 @@ export default {
     // this.timeLogs.forEach((el) => new Date(el.start))
     this.generateScale();
     this.hour = 96 / (this.scale.length);
-    this.group.elements.forEach((el) => this.elements.push({
-      id : el.ID,
-      title: el.task.title,
-      startHour: (this.convertTimeToInt(el.DATE_START)),
-      start: (this.formatTime(el.DATE_START)),
-      end: (this.formatTime(el.DATE_STOP)),
-      duration: this.calculateDuration(el.DATE_START, el.DATE_STOP),
+    this.group.elements.forEach((el) => {
 
-    }))
+      let fields = {
+        pause: el.pause,
+        id : el.ID,
+        title: el.task.title,
+        startHour: (this.convertTimeToInt(el.CREATED_DATE)),
+        start: (this.formatTime(el.CREATED_DATE)),
+        end: (this.formatTime(el.STOP_IN_LOGS)),
+        duration: this.calculateDuration(el.CREATED_DATE, el.STOP_IN_LOGS),
+      }
+
+
+      this.elements.push(fields)}
+    )
   },
   methods: {
+    onClickElem(elem) {
+     this.$emit("clicked", this.group.elements.find((el) => el.ID == elem.id));
+    },
     onRectHover(event, elem) {
       if (event.type === 'mouseenter') {
         event.target.classList.add('activeRect')

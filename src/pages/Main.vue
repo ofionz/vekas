@@ -2,52 +2,53 @@
   <v-card elevation="2" class="mt-1 mx-1">
     <v-card class="mt-2 mb-3 pa-4 text-center">
       <div class="d-flex align-center justify-center">
-<!--        <v-dialog-->
-<!--            ref="dialog"-->
-<!--            v-model="modal"-->
-<!--            :return-value.sync="dates"-->
-<!--            persistent-->
-<!--            width="290px"-->
-<!--        >-->
-<!--          <template v-slot:activator="{ on, attrs }">-->
+        <!--        <v-dialog-->
+        <!--            ref="dialog"-->
+        <!--            v-model="modal"-->
+        <!--            :return-value.sync="dates"-->
+        <!--            persistent-->
+        <!--            width="290px"-->
+        <!--        >-->
+        <!--          <template v-slot:activator="{ on, attrs }">-->
 
-<!--            <v-text-field-->
-<!--                style="min-width: 300px "-->
-<!--                v-model="dateRangeText"-->
-<!--                label="Выберите период дат создания проекта"-->
-<!--                persistent-hint-->
-<!--                hint="По умолчанию в отчёте отражены все активные проекты"-->
-<!--                prepend-icon="mdi-calendar"-->
-<!--                readonly-->
-<!--                v-bind="attrs"-->
-<!--                v-on="on"-->
-<!--            ></v-text-field>-->
+        <!--            <v-text-field-->
+        <!--                style="min-width: 300px "-->
+        <!--                v-model="dateRangeText"-->
+        <!--                label="Выберите период дат создания проекта"-->
+        <!--                persistent-hint-->
+        <!--                hint="По умолчанию в отчёте отражены все активные проекты"-->
+        <!--                prepend-icon="mdi-calendar"-->
+        <!--                readonly-->
+        <!--                v-bind="attrs"-->
+        <!--                v-on="on"-->
+        <!--            ></v-text-field>-->
 
-<!--          </template>-->
-<!--          <v-date-picker-->
-<!--              v-model="dates"-->
-<!--              no-title-->
-<!--              locale="ru"-->
-<!--              range-->
-<!--          >-->
-<!--            <v-spacer></v-spacer>-->
-<!--            <v-btn-->
-<!--                text-->
-<!--                color="primary"-->
-<!--                @click="modal = false"-->
-<!--            >-->
-<!--              Отмена-->
-<!--            </v-btn>-->
-<!--            <v-btn-->
-<!--                text-->
-<!--                color="primary"-->
-<!--                @click="createReport"-->
-<!--            >-->
-<!--              OK-->
-<!--            </v-btn>-->
-<!--          </v-date-picker>-->
-<!--        </v-dialog>-->
-        <v-select v-model="selectedGroups" item-value="ID" item-text="NAME" :items="groupList" clearable chips  label="Проекты" multiple>
+        <!--          </template>-->
+        <!--          <v-date-picker-->
+        <!--              v-model="dates"-->
+        <!--              no-title-->
+        <!--              locale="ru"-->
+        <!--              range-->
+        <!--          >-->
+        <!--            <v-spacer></v-spacer>-->
+        <!--            <v-btn-->
+        <!--                text-->
+        <!--                color="primary"-->
+        <!--                @click="modal = false"-->
+        <!--            >-->
+        <!--              Отмена-->
+        <!--            </v-btn>-->
+        <!--            <v-btn-->
+        <!--                text-->
+        <!--                color="primary"-->
+        <!--                @click="createReport"-->
+        <!--            >-->
+        <!--              OK-->
+        <!--            </v-btn>-->
+        <!--          </v-date-picker>-->
+        <!--        </v-dialog>-->
+        <v-select v-model="selectedGroups" item-value="ID" item-text="NAME" :items="groupList" clearable chips
+                  label="Проекты" multiple>
           <template v-slot:prepend-item>
             <v-list-item>
               <v-list-item-content>
@@ -57,13 +58,13 @@
             <v-divider class="mt-2"></v-divider>
           </template>
         </v-select>
-        <v-btn class="ml-6" color="submit" @click="createReport"> Сформировать отчет </v-btn>
+        <v-btn class="ml-6" color="submit" @click="createReport"> Сформировать отчет</v-btn>
 
-<!--        <v-checkbox-->
-<!--            @change="createReport"-->
-<!--            v-model="isArchive"-->
-<!--            label="Включить в отчёт архивные проекты"-->
-<!--        ></v-checkbox>-->
+        <!--        <v-checkbox-->
+        <!--            @change="createReport"-->
+        <!--            v-model="isArchive"-->
+        <!--            label="Включить в отчёт архивные проекты"-->
+        <!--        ></v-checkbox>-->
       </div>
 
     </v-card>
@@ -97,7 +98,7 @@
         {{ item.timeSpent|secondsToHoursAndMinutes }}
       </template>
       <template v-slot:item.amount="{ item }">
-        {{Math.round(item.amount*100)/100  }} руб.
+        {{ Math.round(item.amount * 100) / 100 }} руб.
       </template>
       <template v-slot:expanded-item="{ headers, item }">
         <td style="padding: 0" :colspan="headers.length">
@@ -135,7 +136,7 @@
               {{ item.timeSpent|secondsToHoursAndMinutes }}
             </template>
             <template v-slot:item.amount="{ item }">
-              {{ Math.round(item.amount*100)/100 }} руб.
+              {{ Math.round(item.amount * 100) / 100 }} руб.
             </template>
             <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length" style="padding: 0">
@@ -150,8 +151,9 @@
             <template v-slot:item.title="{ item }">
 
 
-<!--              {{ item.title}}-->
-              <a target="_blank" :href="'https://ooovekas.bitrix24.ru/company/personal/user/'+ window.USER.ID + '/tasks/task/view/' + item.id + '/'">{{ item.title}}</a>
+              <!--              {{ item.title}}-->
+              <a target="_blank"
+                 :href="'https://ooovekas.bitrix24.ru/company/personal/user/'+ window.USER.ID + '/tasks/task/view/' + item.id + '/'">{{ item.title }}</a>
             </template>
 
             <template v-slot:item.createdDate="{ item }">
@@ -165,7 +167,7 @@
               {{ item.timeSpentInLogs|secondsToHoursAndMinutes }}
             </template>
             <template class="columnAmount" v-slot:item.amount="{ item }">
-              {{ Math.round(item.amount*100)/100  }} руб.
+              {{ Math.round(item.amount * 100) / 100 }} руб.
             </template>
           </v-data-table>
         </td>
@@ -187,7 +189,6 @@ export default {
     return {
       userOptions: {
         showHeaders: true,
-        allUsersLogs: false
       },
       modal: false,
       dates: [(new Date(new Date('1970-01-01T03:24:00') - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10), (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)],
@@ -361,46 +362,51 @@ export default {
 
       let tasks = await this.fetchTasks();
       let time = []
-      if (this.userOptions.allUsersLogs) {
-         time = await this.fetchTimeData(tasks.map((el) => el.id))
-      }
+
+      time = await this.fetchTimeData(tasks.map((el) => el.id))
 
 
       for (const group of this.groupList.filter((gr) => this.selectedGroups.includes(gr.ID))) {
         result[group.ID] = {users: [], name: group.NAME};
-        if (this.userOptions.allUsersLogs) {
-          for (const t of time) {
-            let curTask = tasks.find((tsk) => t.TASK_ID === tsk.id)
-            if (curTask.groupId === group.ID) {
-              let usr = tasks.find((tsk) => t.USER_ID === tsk.responsibleId)?.responsible;
-              if (usr) result[group.ID].users[t.USER_ID] = usr;
-              else {
-                result[group.ID].users[t.USER_ID] = await this.fetchUser(t.USER_ID);
-              }
+        // if (this.userOptions.allUsersLogs) {
+        for (const t of time) {
+          let curTask = tasks.find((tsk) => t.TASK_ID === tsk.id)
+          if (curTask.groupId === group.ID) {
+            let usr = tasks.find((tsk) => t.USER_ID === tsk.responsibleId)?.responsible;
+            if (usr) result[group.ID].users[t.USER_ID] =JSON.parse(JSON.stringify(usr));
+            else {
+              result[group.ID].users[t.USER_ID] = await this.fetchUser(t.USER_ID);
             }
           }
-
-          // Распределяем задачи по пользователям внутри проекта
-          result[group.ID].users.forEach((user) => {
-            tasks.forEach(tsk => {
-              tsk.logs = time.filter((tm) => tm.TASK_ID === tsk.id && tm.USER_ID === user.id && tsk?.groupId === group.ID)
-              if (tsk.logs.length) {
-                if (user.tasks) {
-                  user.tasks.push(JSON.parse(JSON.stringify(tsk)));
-                } else user.tasks = [JSON.parse(JSON.stringify(tsk))];
-              }
-            });
-          })
-        } else {
-          // // Формируем массив пользователей внутри проекта
-          tasks.forEach((task) => {
-            if (task.groupId === group.ID) result[group.ID].users[task.responsibleId] = task.responsible
-          });
-          // // Распределяем задачи по пользователям внутри проекта
-          result[group.ID].users.forEach((user) => {
-            user.tasks = tasks.filter((task) => (task.responsibleId === user.id && task.groupId === group.ID))
-          })
         }
+
+
+
+        // Распределяем задачи по пользователям внутри проекта
+        result[group.ID].users.forEach((user) => {
+
+          tasks.forEach(tsk => {
+            tsk.logs = time.filter((tm) => tm.TASK_ID === tsk.id && tm.USER_ID === user.id && tsk.groupId === group.ID)
+            if (tsk.logs.length) {
+              if (user.tasks) {
+                user.tasks.push(JSON.parse(JSON.stringify(tsk)));
+              } else user.tasks = [JSON.parse(JSON.stringify(tsk))];
+            }
+          });
+        })
+
+        // }
+
+        // else {
+        //   // // Формируем массив пользователей внутри проекта
+        //   tasks.forEach((task) => {
+        //     if (task.groupId === group.ID) result[group.ID].users[task.responsibleId] = task.responsible
+        //   });
+        //   // // Распределяем задачи по пользователям внутри проекта
+        //   result[group.ID].users.forEach((user) => {
+        //     user.tasks = tasks.filter((task) => (task.responsibleId === user.id && task.groupId === group.ID))
+        //   })
+        // }
 
       }
 
@@ -447,6 +453,7 @@ export default {
       });
       return groups;
     },
+
     async fetchTasks() {
       let tasks = [];
       await this.callMethod(
@@ -457,9 +464,9 @@ export default {
             },
             select: ['*']
           }).then(function (res) {
-         res.forEach(el=> {
-           tasks = el['tasks']?tasks.concat(el['tasks']):tasks.concat(el)
-         }) ;
+        res.forEach(el => {
+          tasks = el['tasks'] ? tasks.concat(el['tasks']) : tasks.concat(el)
+        });
       });
       return tasks;
     },
@@ -468,7 +475,6 @@ export default {
       result.timeEstimate = 0;
       result.timeSpent = 0;
       result.amount = 0;
-
 
       result.forEach((group) => {
         group.timeEstimate = 0;
@@ -483,13 +489,13 @@ export default {
             if (Array.isArray(task)) task = task[0];
             let userId = task.responsibleId;
             user.timeEstimate += Number(task.timeEstimate);
-            if (this.userOptions.allUsersLogs) {
-              task.timeSpentInLogs = 0;
-              task.logs.forEach((telm) => {
-                userId = telm.USER_ID;
-                task.timeSpentInLogs += (new Date(telm.DATE_STOP) - new Date(telm.DATE_START)) / 1000
-              })
-            }
+            // if (this.userOptions.allUsersLogs) {
+            task.timeSpentInLogs = 0;
+            task.logs.forEach((telm) => {
+              userId = telm.USER_ID;
+              task.timeSpentInLogs += Number.parseInt(telm.SECONDS)
+            })
+            // }
             user.timeSpent += Number(task.timeSpentInLogs);
             let savedUser = this.users.find((usr) => userId === usr.id)
             if (savedUser && Number.isInteger(savedUser.hourRate)) {
@@ -522,6 +528,16 @@ export default {
 
 
   async created() {
+    // console.log(12345)
+    // await this.callMethod(
+    //     'crm.activity.list',
+    //     {
+    //
+    //       select:[ "*", "COMMUNICATIONS" ]
+    //     }).then(function (res) {
+    //   console.log(res)
+    // });
+
     this.window = window;
     // eslint-disable-next-line no-undef
     if (BX24.userOption.get('options')) {
@@ -534,7 +550,9 @@ export default {
       this.users = JSON.parse(BX24.appOption.get('users'));
     }
 
-   this.groupList = await this.fetchGroups();
+    this.groupList = await this.fetchGroups();
+
+
     this.groupCopy = [...this.groupList];
     // await this.createReport()
 
