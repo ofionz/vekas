@@ -4,9 +4,12 @@
       <span>Идет формирование отчёта...</span>
     </v-overlay>
     <v-card hover color="primary" class="text-center">
-            <h2 @click="window.location.reload(false)"  style="color: white">Отчёт</h2>
-<!--      <h2 style="color: white">Отчёт</h2>-->
+      <h2 @click="window.location.reload(false)" style="color: white">Отчёт</h2>
+      <!--      <h2 style="color: white">Отчёт</h2>-->
       <v-tabs dark background-color="primary" show-arrows centered>
+        <v-tab to="/stages">
+          Стадии
+        </v-tab>
         <v-tab to="/main">
           Проекты
         </v-tab>
@@ -32,10 +35,16 @@ export default {
   name: 'App',
 
   components: {},
-  created() {
-    this.$eventBus.$on("preloader", () => this.isPreloader = !this.isPreloader);
-  },
+  async created() {
 
+    this.$eventBus.$on("preloader", () => this.isPreloader = !this.isPreloader);
+    // eslint-disable-next-line no-undef
+    // BX24.callMethod('entity.delete', {'ENTITY': 'SETTINGS'})
+    // eslint-disable-next-line no-undef
+
+
+
+  },
   methods: {},
   computed: {
     window: () => window,

@@ -10,6 +10,11 @@ const routes = [
   },
 
   {
+    path: "/stages",
+    name: "stages",
+    component: () => import(/* webpackChunkName: "Stages" */ "../pages/Stages.vue"),
+  },
+  {
     path: "/main",
     name: "main",
     component: () => import(/* webpackChunkName: "Main" */ "../pages/Main.vue"),
