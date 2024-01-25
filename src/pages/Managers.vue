@@ -285,28 +285,32 @@ export default {
 
     async fetchTasks(timeRecords) {
       let needleTasks = {};
+      if (timeRecords && timeRecords.length) {
 
-      let filter = {
-        'ID': timeRecords.map((el) => {
-          return el.TASK_ID
-        }),
-      };
 
-      if (this.currentGroup) {
-        filter.GROUP_ID = this.currentGroup.ID;
+        let filter = {
+          'ID': timeRecords.map((el) => {
+            return el.TASK_ID
+          }),
+        };
+
+        if (this.currentGroup) {
+          filter.GROUP_ID = this.currentGroup.ID;
+        }
+        await this.callMethod(
+            'tasks.task.list',
+            {
+              filter: filter,
+              select: [
+                'ID',
+                'TITLE'
+              ]
+            }).then(function (res) {
+
+           res = res.map(el => el['tasks'] ? el['tasks'] : el).flat()
+          res.forEach(el => needleTasks[el.id] = el);
+        });
       }
-      await this.callMethod(
-          'tasks.task.list',
-          {
-            filter: filter,
-            select: [
-              'ID',
-              'TITLE'
-            ]
-          }).then(function (res) {
-        res[0]['tasks'].forEach(el => needleTasks[el.id] = el);
-      });
-
 
       return needleTasks;
 
@@ -315,6 +319,7 @@ export default {
     async createReport() {
       this.reportData = [];
       this.$refs.dialog.save(this.dates)
+
 
       if (this.dates && this.currentUser) {
         let timeRecords = await this.fetchTimeData();
@@ -354,6 +359,8 @@ export default {
             }
           }
         })
+
+
       }
 
     },
@@ -422,8 +429,6 @@ export default {
             }
           }
       )
-
-
     },
     addNewTask() {
       this.modalState.edit = false;

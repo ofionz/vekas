@@ -38,7 +38,7 @@
             @click="onClickElem(elem)"
             @mouseenter=" (event)=> onRectHover (event, elem)"
             @mouseleave="(event) =>   onRectHover (event, elem)"
-            :x="elem.startHour*hour+'vw'" y="10"
+            :x="getX(elem, hour)" y="10"
             :width="elem.duration*hour+'vw'" height="30"
             :fill="'url(#pattern'+elem.id+')'"
             opacity="0.4"
@@ -82,6 +82,8 @@ export default {
   created() {
     // this.timeLogs.forEach((el) => new Date(el.start))
     this.generateScale();
+
+
     this.hour = 96 / (this.scale.length);
     this.group.elements.forEach((el) => {
 
@@ -100,6 +102,10 @@ export default {
     )
   },
   methods: {
+
+    getX (elem, hour) {
+     return  elem.startHour*hour+'vw';
+    },
     onClickElem(elem) {
      this.$emit("clicked", this.group.elements.find((el) => el.ID == elem.id));
     },
@@ -149,6 +155,9 @@ export default {
     generateScale() {
       let start = this.group.minTime.getHours();
       let end = this.group.maxTime.getHours();
+      if (this.group.maxTime.getDate() !== this.group.minTime.getDate()) {
+        end = 23;
+      }
       for (; start <= end; start++) {
         let time = start < 10 ? '0' + start + ':00' : start + ':00';
         this.scale.push(time);
@@ -169,6 +178,7 @@ export default {
 }
 
 .parent-svg {
+  width: 100%;
   /*transform: translateX(1vw);*/
 }
 

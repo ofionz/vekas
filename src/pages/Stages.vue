@@ -1,186 +1,176 @@
 <template>
-  <v-card elevation="2" class="mt-1 mx-1">
-    <v-card class="mt-2 mb-3 pa-4 text-center">
-      <div class="d-flex align-center justify-center">
-        <!--        <v-dialog-->
-        <!--            ref="dialog"-->
-        <!--            v-model="modal"-->
-        <!--            :return-value.sync="dates"-->
-        <!--            persistent-->
-        <!--            width="290px"-->
-        <!--        >-->
-        <!--          <template v-slot:activator="{ on, attrs }">-->
-
-        <!--            <v-text-field-->
-        <!--                style="min-width: 300px "-->
-        <!--                v-model="dateRangeText"-->
-        <!--                label="Выберите период дат создания проекта"-->
-        <!--                persistent-hint-->
-        <!--                hint="По умолчанию в отчёте отражены все активные проекты"-->
-        <!--                prepend-icon="mdi-calendar"-->
-        <!--                readonly-->
-        <!--                v-bind="attrs"-->
-        <!--                v-on="on"-->
-        <!--            ></v-text-field>-->
-
-        <!--          </template>-->
-        <!--          <v-date-picker-->
-        <!--              v-model="dates"-->
-        <!--              no-title-->
-        <!--              locale="ru"-->
-        <!--              range-->
-        <!--          >-->
-        <!--            <v-spacer></v-spacer>-->
-        <!--            <v-btn-->
-        <!--                text-->
-        <!--                color="primary"-->
-        <!--                @click="modal = false"-->
-        <!--            >-->
-        <!--              Отмена-->
-        <!--            </v-btn>-->
-        <!--            <v-btn-->
-        <!--                text-->
-        <!--                color="primary"-->
-        <!--                @click="createReport"-->
-        <!--            >-->
-        <!--              OK-->
-        <!--            </v-btn>-->
-        <!--          </v-date-picker>-->
-        <!--        </v-dialog>-->
-        <v-select v-model="selectedGroups" item-value="ID" item-text="NAME" :items="groupList" clearable chips
-                  label="Проекты" multiple>
-          <template v-slot:prepend-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-text-field v-model="searchTerm" placeholder="Поиск" @input="searchGroup"></v-text-field>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider class="mt-2"></v-divider>
-          </template>
-        </v-select>
-        <v-btn class="ml-6" color="submit" @click="createReport"> Сформировать отчет</v-btn>
-
-        <!--        <v-checkbox-->
-        <!--            @change="createReport"-->
-        <!--            v-model="isArchive"-->
-        <!--            label="Включить в отчёт архивные проекты"-->
-        <!--        ></v-checkbox>-->
-      </div>
-
-    </v-card>
-
-    <v-card v-if="usersWithoutHourRate.length" color="error"
-            outlined
-            class="mt-1 mb-1 text-center">
-      <div> Внимание! Расчет содержит ошибки! У сотрудника(ов): <b>{{ usersWithoutHourRate.join(", ") }} </b> не
-        установлена ставка часа!
-      </div>
-    </v-card>
-
-    <v-data-table
-        locale="RU"
-        v-if="items"
-        :headers="headers"
-        :items="items"
-        show-expand
-        :disable-pagination="true"
-        :hide-default-footer="true"
-        single-expand
-        :expanded.sync="expanded"
-        item-key="name"
-        class="table_project"
-
-    >
-      <template v-slot:item.timeEstimate="{ item }">
-        {{ item.timeEstimate|secondsToHoursAndMinutes }}
-      </template>
-      <template v-slot:item.timeSpent="{ item }">
-        {{ item.timeSpent|secondsToHoursAndMinutes }}
-      </template>
-      <template v-slot:item.amount="{ item }">
-        {{ Math.round(item.amount * 100) / 100 }} руб.
-      </template>
-      <template v-slot:expanded-item="{ headers, item }">
-        <td style="padding: 0" :colspan="headers.length">
-          <v-data-table
-              locale="RU"
-              expand-icon="mdi-menu-down"
-              show-expand
-              :expanded.sync="innerExpanded"
-              item-key="name"
-              :headers="userTableHeader"
-              :items="item.users"
-              :disable-pagination="true"
-              :hide-default-footer="true"
-              :class="[!userOptions.showHeaders ?  'collapse': '', 'table_users']"
-
-          >
-            <template v-slot:item.timeEstimate="{ item }">
-              {{ item.timeEstimate|secondsToHoursAndMinutes }}
-            </template>
-            <template v-slot:item.name="{ item }">
-              <div class="d-flex align-center">
-                <v-avatar size="27">
-                  <img
-                      :src="
-                item.icon !== '/bitrix/images/tasks/default_avatar.png' && item.icon
-                  ? item.icon
-                  : 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3Euserpic%3C/title%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585-1.734-.483-3.383-1.233-4.887-2.223-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04.388-2.625.388-5.293%200-7.918-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217c.024.58-.023%201.162-.14%201.732-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E'
-              "
-                      :alt="item.name"
-                  /></v-avatar>
-                <v-subheader style="width: 30%"> {{ item.name }}</v-subheader>
+  <div>
+    <v-card elevation="2" class="mt-1 mx-1">
+      <v-card class="mt-2 mb-3 pa-4 text-center">
+        <div class="d-flex align-center justify-center">
+          <v-autocomplete
+              @change="changeLeadersHandler"
+              v-model="selectedLeaders"
+              multiple
+              clearable
+              style="width: 25%"
+              item-value="ID"
+              :item-text="(el) =>el.NAME+' '+ el.LAST_NAME"
+              return-object label="Выберите руководителя проекта"
+              class="ml-5" :items="leadersList">
+            <template v-slot:selection="data">
+              <div class="d-flex flex-row align-center justify-center ml-3"><img
+                  style="width: 24px; margin-right: 8px; border-radius: 50%;"
+                  :src=" data.item.PERSONAL_PHOTO ? data.item.PERSONAL_PHOTO: `data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3Euserpic%3C/title%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585-1.734-.483-3.383-1.233-4.887-2.223-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04.388-2.625.388-5.293%200-7.918-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217c.024.58-.023%201.162-.14%201.732-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E`"
+                  alt="">
+                <span>  {{
+                    data.item.NAME || data.item.LAST_NAME ? (data.item.NAME + ' ' + data.item.LAST_NAME) : data.item.EMAIL
+                  }}</span>
               </div>
+
             </template>
-            <template v-slot:item.timeSpent="{ item }">
-              {{ item.timeSpent|secondsToHoursAndMinutes }}
+            <template v-slot:item="data">
+              <template>
+                <div class="d-flex flex-row align-center justify-center"><img
+                    style="width: 24px; margin-right: 8px;border-radius: 50%;"
+                    :src=" data.item.PERSONAL_PHOTO ? data.item.PERSONAL_PHOTO: `data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3Euserpic%3C/title%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585-1.734-.483-3.383-1.233-4.887-2.223-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04.388-2.625.388-5.293%200-7.918-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217c.024.58-.023%201.162-.14%201.732-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E`"
+                    alt="">
+                  <span>  {{
+                      data.item.NAME || data.item.LAST_NAME ? (data.item.NAME + ' ' + data.item.LAST_NAME) : data.item.EMAIL
+                    }}</span>
+                </div>
+              </template>
             </template>
-            <template v-slot:item.amount="{ item }">
-              {{ Math.round(item.amount * 100) / 100 }} руб.
-            </template>
-            <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" style="padding: 0">
-          <v-data-table
-              locale="RU"
-              :headers="taskTableHeader"
-              :items="item.tasks"
-              :disable-pagination="true"
-              :hide-default-footer="true"
-              :class="[!userOptions.showHeaders ?  'collapse': '', 'table_tasks']"
-          >
-            <template v-slot:item.title="{ item }">
+          </v-autocomplete>
+
+          <v-autocomplete style="width: 25%" v-model="selectedGroups" @change="changeGroupHandler" class="ml-5"
+                          item-value="ID" item-text="NAME" :items="groupList" clearable
+                          label="Проекты" multiple></v-autocomplete>
+          <v-autocomplete style="width: 25%" v-model="selectedStages" class="ml-5" @change="changeStageHandler"
+                          :items="stagesList" clearable
+                          label="Стадии" multiple>
+          </v-autocomplete>
+
+          <v-checkbox class="ml-5" v-model="expired" @change="expiredHandler" label="Просроченные стадии"></v-checkbox>
+          <!--          <v-btn class="ml-6" color="submit" @click="createReport"> Сформировать отчет</v-btn>-->
+        </div>
+
+      </v-card>
 
 
-              <!--              {{ item.title}}-->
-              <a target="_blank"
-                 :href="'https://ooovekas.bitrix24.ru/company/personal/user/'+ window.USER.ID + '/tasks/task/view/' + item.id + '/'">{{
-                  item.title
-                }}</a>
-            </template>
+      <v-data-table
+          locale="RU"
+          v-if="items"
+          :headers="headers"
+          :items="items"
+          show-expand
+          :disable-pagination="true"
+          :hide-default-footer="true"
+          single-expand
+          :expanded.sync="expanded"
+          item-key="ID"
+          class="table_project"
 
-            <template v-slot:item.createdDate="{ item }">
-              {{ moment(item.createdDate).format("DD.MM.YYYY HH:mm:ss") }}
-            </template>
+      >
+        <template class="" v-slot:item.name="{ item }">
+          {{ item.NAME + ' ' + item.LAST_NAME }}
+        </template>
+        <template v-slot:expanded-item="{ headers, item }">
+          <td style="padding: 0" :colspan="headers.length">
+            <v-data-table
+                locale="RU"
+                expand-icon="mdi-menu-down"
+                show-expand
+                :expanded.sync="innerExpanded"
 
-            <template v-slot:item.timeEstimate="{ item }">
-              {{ item.timeEstimate|secondsToHoursAndMinutes }}
-            </template>
-            <template v-slot:item.timeSpentInLogs="{ item }">
-              {{ item.timeSpentInLogs|secondsToHoursAndMinutes }}
-            </template>
-            <template class="columnAmount" v-slot:item.amount="{ item }">
-              {{ Math.round(item.amount * 100) / 100 }} руб.
-            </template>
-          </v-data-table>
-        </td>
-      </template>
-    </v-data-table>
-    </td>
+                item-key="ID"
+                :headers="projectTableHeader"
+                :items="item.projects"
+                :disable-pagination="true"
+                :hide-default-footer="true"
+
+
+            >
+              <template class="" v-slot:item.name="{ item }">
+                {{ item.NAME }}
+              </template>
+
+              <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length" style="padding: 0">
+            <v-data-table
+                @click:row="showCommentsModal"
+                locale="RU"
+                :headers="stageTableHeader"
+                :items="item.stages"
+                :disable-pagination="true"
+                :hide-default-footer="true"
+                :item-class="getRowStageColor"
+            >
+
+
+              <template v-slot:item.deadline="{ item }">
+                {{ item.deadline ? moment(item.deadline).format("DD.MM.YYYY HH:mm:ss") : "Не установлен" }}
+              </template>
+              <template v-slot:item.isCompleted="{ item }">
+                {{ item.status === '5' ? 'Да' : 'Нет' }}
+              </template>
+              <template v-slot:item.isExpired="{ item }">
+                {{
+                  getRowStageColor(item) === 'closed-not-time' || getRowStageColor(item) === 'expired' ? 'Да' : 'Нет'
+                }}
+              </template>
+
+
+            </v-data-table>
+          </td>
+        </template>
+      </v-data-table>
+      </td>
 </template>
 </v-data-table>
 
 </v-card>
-<!--  <div v-if="groupData"> {{groupData}}-->
+<v-dialog width="600px" v-model="modal">
+<v-card>
+  <v-card-title>
+    Комментарии
+  </v-card-title>
+  <v-card-text>
+    <v-list v-if="comments.length" three-line>
+      <template v-for="(item, index) in comments">
+        <v-divider :key="index"></v-divider>
+        <v-list-item :key="'item' + index">
+
+          <v-list-item-avatar>
+            <v-img
+                :src="
+                                item.PHOTO
+                                  ? item.PHOTO
+                                  : 'data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2089%2089%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3Euserpic%3C/title%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Ccircle%20fill%3D%22%23535C69%22%20cx%3D%2244.5%22%20cy%3D%2244.5%22%20r%3D%2244.5%22/%3E%3Cpath%20d%3D%22M68.18%2071.062c0-3.217-3.61-16.826-3.61-16.826%200-1.99-2.6-4.26-7.72-5.585-1.734-.483-3.383-1.233-4.887-2.223-.33-.188-.28-1.925-.28-1.925l-1.648-.25c0-.142-.14-2.225-.14-2.225%201.972-.663%201.77-4.574%201.77-4.574%201.252.695%202.068-2.4%202.068-2.4%201.482-4.3-.738-4.04-.738-4.04.388-2.625.388-5.293%200-7.918-.987-8.708-15.847-6.344-14.085-3.5-4.343-.8-3.352%209.082-3.352%209.082l.942%202.56c-1.85%201.2-.564%202.65-.5%204.32.09%202.466%201.6%201.955%201.6%201.955.093%204.07%202.1%204.6%202.1%204.6.377%202.556.142%202.12.142%202.12l-1.786.217c.024.58-.023%201.162-.14%201.732-2.1.936-2.553%201.485-4.64%202.4-4.032%201.767-8.414%204.065-9.193%207.16-.78%203.093-3.095%2015.32-3.095%2015.32H68.18z%22%20fill%3D%22%23FFF%22/%3E%3C/g%3E%3C/svg%3E'
+                              "
+            ></v-img>
+          </v-list-item-avatar>
+
+          <v-list-item-content>
+            <v-list-item-title
+            >{{ item.AUTHOR_NAME }}
+              <span style="  color: grey;  font-size: 12px;  margin-left: 10px;">{{
+                  moment(item.POST_DATE).format("DD.MM.YYYY HH:mm:ss")
+                }}</span>
+            </v-list-item-title>
+            <!--            <v-list-item-content v-text="item.POST_MESSAGE">-->
+
+            <!--            </v-list-item-content>-->
+            <v-list-item-subtitle style="-webkit-line-clamp: initial;"
+                                  v-text="item.POST_MESSAGE"
+            ></v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </template>
+    </v-list>
+
+    <span v-else> Комментарии отсутствуют </span>
+  </v-card-text>
+
+
+</v-card>
+</v-dialog>
+</div>
 
 </template>
 
@@ -192,101 +182,67 @@ export default {
       userOptions: {
         showHeaders: true,
       },
+      expired: false,
+      allItems: [],
+      allTasks: [],
+      selectedStages: [],
+      stagesList: [],
       modal: false,
-      dates: [(new Date(new Date('1970-01-01T03:24:00') - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10), (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)],
+      comments: [],
       expanded: [],
       innerExpanded: [],
-      taskTableHeader: [
+      stageTableHeader: [
         {text: '', value: '', width: '140px', sortable: false},
         {
-          text: 'Заголовок задачи',
+          text: 'Наименование стадии',
           value: 'title'
         },
         {
-          text: 'Дата',
-          value: 'createdDate'
+          text: 'Крайний срок',
+          value: 'deadline'
         },
         {
-          width: '15vw',
-          text: 'Время плановое',
-          value: 'timeEstimate'
+          text: 'Завершена',
+          value: 'isCompleted',
+          sortable: false
         },
         {
-          width: '15vw',
-          text: 'Времени потрачено',
-          value: 'timeSpentInLogs'
+          text: 'Просрочена',
+          value: 'isExpired',
+          sortable: false
         },
-        {
-          width: '15vw',
-          text: window.isSuper ? 'Сумма' : ' ',
-          value: window.isSuper ? 'amount' : ""
-        }
+
       ],
-      userTableHeader: [
+      projectTableHeader: [
         {text: '', width: '90px', align: 'end', value: 'data-table-expand'},
         {
-          text: 'Сотрудник',
+          text: 'Проект',
           value: 'name'
         },
-        {
-          width: '15vw',
-          text: 'Время плановое',
-          value: 'timeEstimate'
-        },
-        {
-          width: '15vw',
-          text: 'Времени потрачено',
-          value: 'timeSpent'
-        },
-        {
-          width: '15vw',
-          text: window.isSuper ? 'Сумма' : ' ',
-          value: window.isSuper ? 'amount' : ''
-        },
+
 
       ],
       headers: [
         {text: '', value: 'data-table-expand'},
         {
-          text: 'Наименование проекта',
+          text: 'Руководитель проекта',
           align: 'start',
           sortable: false,
           value: 'name',
-        },
-        {width: '15vw', text: 'Время план', value: 'timeEstimate'},
-        {width: '15vw', text: 'Времени потрачено', value: 'timeSpent'},
-
-        {
-          width: '15vw',
-          text: window.isSuper ? 'Сумма' : ' ',
-          value: window.isSuper ? 'amount' : ''
         },
 
       ],
       items: [],
       users: [],
-      // isArchive: false,
-      usersWithoutHourRate: [],
       groupList: [],
+      leadersList: [],
       searchTerm: "",
-      window: undefined,
-      groupCopy: [],
-      selectedGroups: []
+      selectedLeaders: [],
+      selectedGroups: [],
+      allGroups: []
     }
   },
-  computed: {
-    dateRangeText() {
-      if (!this.dates.length || this.dates [0] === (new Date(new Date('1970-01-01T03:24:00') - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)) {
-        return 'Выберите период дат создания проекта'
-      } else if (this.dates.length === 1) {
-        return "Отчёт за " + this.formatDate(this.dates[0]);
-      } else {
-        if (this.dates[0] < this.dates[1])
-          return "Период с " + this.formatDate(this.dates[0]) + " по " + this.formatDate(this.dates[1]);
-        else return "Период с " + this.formatDate(this.dates[1]) + " по " + this.formatDate(this.dates[0]);
-      }
-    }
-  },
+
   filters: {
     secondsToHoursAndMinutes(seconds) {
 
@@ -304,49 +260,166 @@ export default {
     }
   },
   methods: {
-    searchGroup() {
-      if (!this.searchTerm) {
-        this.groupList = this.groupCopy;
-      }
-      this.groupList = this.groupCopy.filter((grp) => {
-        return grp.NAME.toLowerCase().indexOf(this.searchTerm.toLowerCase()) > -1;
-      });
-    },
-    async fetchUser(userId) {
-      let usr = []
+    async showCommentsModal(item) {
+      let comments = [];
+      let notNeedleComments = [
+        'Задача возвращена в работу.',
+        'Задача завершена.',
+        'Задача просрочена',
+        'Задача почти просрочена.',
+        'Проект задачи изменен на:',
+        'Крайний срок изменен на',
+        'Завершите задачу или передвиньте срок.',
+        'задача возвращена в работу.',
+        'Изменен крайний срок:',
+        'задача почти просрочена',
+        'назначены ответственным.',
+        'Задача потребует контроля постановщика после',
+        'Необходимо указать крайний срок,',
+        'вы добавлены наблюдателем.',
+          "вы назначены соисполнителем.",
+          "вы назначены постановщиком."
+      ]
 
       await this.callMethod(
-          'user.get',
-          {
-            FILTER: {'ID': userId},
-          }).then(function (res) {
-        usr = res[0];
+          'task.commentitem.get',
+          [11668,124038]).then(function (res) {
+        console.log(res)
+      });
+      await this.callMethod(
+          'task.commentitem.getlist',
+          [11668, {'ID': 'desc'}]).then(function (res) {
+        console.log(res)
       });
 
-      usr.icon = usr.PERSONAL_PHOTO;
-      usr.id = usr.ID;
-      usr.name = usr.LAST_NAME + ' ' + usr.NAME;
-      return usr;
 
-    },
-    async fetchTimeData(tasks) {
-      let timeRecords = [];
-      await this.pageNavigationMethod(
-          'task.elapseditem.getlist',
-          [{'CREATED_DATE': 'desc'}, {
-            "TASK_ID": tasks
-          }, ['*'], {
-            "NAV_PARAMS": {
-              "nPageSize": 50,
-              "iNumPage": 1
-            }
-          }]
-      ).then(function (res) {
-        timeRecords = res;
+      await this.callMethod(
+          'task.commentitem.getlist',
+          [item.id, {'ID': 'desc'}]).then(function (res) {
+        comments = res;
       });
 
-      return timeRecords;
+      comments = comments.filter((comment) => {
+            return !notNeedleComments.find((notNedl) => comment.POST_MESSAGE.includes(notNedl));
+          }
+      )
+
+      if (comments.length) {
+        await this.callMethod(
+            'user.get',
+            {
+              FILTER: {CHECK_PERMISSIONS: 'N', 'ID': Array.from(new Set(comments.map((el) => el.AUTHOR_ID)))},
+            }).then(function (res) {
+          comments.forEach((comm) => comm.PHOTO = res.find((usr) => comm.AUTHOR_ID === usr.ID).PERSONAL_PHOTO)
+        });
+      }
+      this.comments = comments;
+      this.modal = true
+
     },
+
+    getRowStageColor(item) {
+      let deadline = new Date(item.deadline);
+      let today = new Date();
+      let closed = item.closedDate ? new Date(item.closedDate) : null;
+      if (!closed && deadline < today && item.type === 'stage') {
+        return 'expired'
+      } else if (closed && closed > deadline && item.type === 'stage') {
+        return 'closed-not-time'
+      } else if (closed) {
+        return 'completed'
+      }
+    },
+
+    changeLeadersHandler() {
+      this.groupList = [];
+      this.selectedStages = [];
+      if (this.selectedLeaders.length) {
+        this.selectedGroups = [];
+        this.allItems
+            .filter((usr) => this.selectedLeaders
+                .map((el) => el.ID).includes(usr.ID))
+            .map((el) => el.projects)
+            .forEach((el) => this.groupList = this.groupList.concat(el));
+        this.items = JSON.parse(JSON.stringify(this.allItems
+            .filter((usr) => this.selectedLeaders
+                .map((el) => el.ID).includes(usr.ID))))
+
+        // this.groupList = this.allGroups.filter((el) => this.selectedLeaders.map((el) => el.ID).includes(el.OWNER_ID))
+        // this.items = this.allItems.filter((el)=> this.selectedLeaders.map((er)=> er.ID).includes(el.ID));
+      } else {
+        this.allItems
+            .map((el) => el.projects)
+            .forEach((el) => this.groupList = this.groupList.concat(el))
+        this.items = JSON.parse(JSON.stringify(this.allItems));
+        // this.groupList = this.allGroups;
+      }
+      this.changeGroupHandler()
+    },
+    changeGroupHandler() {
+      this.selectedStages = [];
+      this.stagesList = [];
+      let filteredByLeader = [];
+      if (this.selectedLeaders.length) {
+        filteredByLeader = JSON.parse(JSON.stringify(this.allItems.filter((usr) => this.selectedLeaders.map((el) => el.ID).includes(usr.ID))))
+      } else {
+        filteredByLeader = JSON.parse(JSON.stringify(this.allItems))
+      }
+      if (this.selectedGroups.length) {
+        filteredByLeader.forEach((el) => el.projects = el.projects.filter((prj) => this.selectedGroups.includes(prj.ID)));
+      }
+      let arr = new Set();
+      filteredByLeader.forEach((lider) => lider.projects.forEach((prj) => prj.stages.forEach((stage) => arr.add(stage.title))))
+      this.stagesList = Array.from(arr)
+
+      this.items = filteredByLeader.filter((usr) => usr.projects?.length);
+      if (this.expired) this.items.forEach((usr) => usr.projects.forEach((prj) => prj.stages = prj.stages.filter(stage => (this.getRowStageColor(stage) === 'expired' || this.getRowStageColor(stage) === 'closed-not-time'))))
+
+      this.items.forEach((usr) => usr.projects = usr.projects.filter(prj => prj.stages.length));
+      this.items = this.items.filter((usr) => usr.projects?.length && usr.projects.filter(prj => prj.stages.length).length);
+
+    },
+    changeStageHandler() {
+      let filteredByLeader = [];
+      if (this.selectedLeaders.length) {
+        filteredByLeader = JSON.parse(JSON.stringify(this.allItems.filter((usr) => this.selectedLeaders.map((el) => el.ID).includes(usr.ID))))
+      } else {
+        filteredByLeader = JSON.parse(JSON.stringify(this.allItems))
+      }
+
+      if (this.selectedGroups.length) {
+        filteredByLeader.forEach((el) => el.projects = el.projects.filter((prj) => this.selectedGroups.includes(prj.ID)));
+      }
+      if (this.selectedStages.length) {
+        filteredByLeader.forEach((usr) => usr.projects.forEach((prj) => {
+          prj.stages = prj.stages.filter(stage => this.selectedStages.includes(stage.title))
+        }))
+      }
+      filteredByLeader.forEach((usr) => usr.projects = usr.projects.filter(prj => prj.stages.length))
+      this.items = filteredByLeader;
+      if (this.expired) this.items.forEach((usr) => usr.projects.forEach((prj) => prj.stages = prj.stages.filter(stage => (this.getRowStageColor(stage) === 'expired' || this.getRowStageColor(stage) === 'closed-not-time'))))
+      this.items = this.items.filter((usr) => usr.projects?.length && usr.projects.filter(prj => prj.stages.length).length);
+
+    },
+
+    expiredHandler() {
+      this.changeLeadersHandler();
+      this.changeGroupHandler();
+      this.changeStageHandler();
+      if (this.expired) this.items.forEach((usr) => usr.projects.forEach((prj) => prj.stages = prj.stages.filter(stage => (this.getRowStageColor(stage) === 'expired' || this.getRowStageColor(stage) === 'closed-not-time'))))
+      this.items = this.items.filter((usr) => usr.projects?.length && usr.projects.filter(prj => prj.stages.length).length);
+    },
+
+    async fetchComments(id) {
+      let comments = []
+      await this.callMethod(
+          'task.commentitem.getlist',
+          [id, {'ID': 'asc'}, {'>AUTHOR_ID': 2}],).then(function (res) {
+        comments = res;
+      });
+      return comments
+    },
+
     formatDate(arg) {
       let date = new Date(arg);
       let dd = date.getDate();
@@ -357,92 +430,18 @@ export default {
       if (yy < 10) yy = '0' + yy;
       return dd + '.' + mm + '.' + yy;
     },
-    async collectData() {
-      this.items = []
-      this.$refs?.dialog?.save(this.dates)
-      let result = [];
-
-      let tasks = await this.fetchTasks();
-      let time = []
-
-      time = await this.fetchTimeData(tasks.map((el) => el.id))
 
 
-      for (const group of this.groupList.filter((gr) => this.selectedGroups.includes(gr.ID))) {
-        result[group.ID] = {users: [], name: group.NAME};
-        // if (this.userOptions.allUsersLogs) {
-        for (const t of time) {
-          let curTask = tasks.find((tsk) => t.TASK_ID === tsk.id)
-          if (curTask.groupId === group.ID) {
-            let usr = tasks.find((tsk) => t.USER_ID === tsk.responsibleId)?.responsible;
-            if (usr) result[group.ID].users[t.USER_ID] = JSON.parse(JSON.stringify(usr));
-            else {
-              result[group.ID].users[t.USER_ID] = await this.fetchUser(t.USER_ID);
-            }
-          }
-        }
-
-
-        // Распределяем задачи по пользователям внутри проекта
-        result[group.ID].users.forEach((user) => {
-
-          tasks.forEach(tsk => {
-            tsk.logs = time.filter((tm) => tm.TASK_ID === tsk.id && tm.USER_ID === user.id && tsk.groupId === group.ID)
-            if (tsk.logs.length) {
-              if (user.tasks) {
-                user.tasks.push(JSON.parse(JSON.stringify(tsk)));
-              } else user.tasks = [JSON.parse(JSON.stringify(tsk))];
-            }
-          });
-        })
-
-        // }
-
-        // else {
-        //   // // Формируем массив пользователей внутри проекта
-        //   tasks.forEach((task) => {
-        //     if (task.groupId === group.ID) result[group.ID].users[task.responsibleId] = task.responsible
-        //   });
-        //   // // Распределяем задачи по пользователям внутри проекта
-        //   result[group.ID].users.forEach((user) => {
-        //     user.tasks = tasks.filter((task) => (task.responsibleId === user.id && task.groupId === group.ID))
-        //   })
-        // }
-
-      }
-
-      return (result)
-    },
     async fetchGroups() {
       let groups = [];
-
-      let startDate;
-      let finishDate;
-      if (this.dates.length === 1) {
-        startDate = new Date(this.dates[0]);
-        finishDate = new Date(this.dates[0]);
-      } else {
-        if (new Date(this.dates[0]) > new Date(this.dates[1])) {
-          startDate = new Date(this.dates[1]);
-          finishDate = new Date(this.dates[0]);
-        } else {
-          startDate = new Date(this.dates[0]);
-          finishDate = new Date(this.dates[1]);
-        }
-      }
-      startDate.setHours(0, 0, 0);
-      finishDate.setHours(23, 59, 59);
-
       let filter = {
-        // '>=DATE_CREATE': startDate.toISOString(),
-        // '<=DATE_CREATE': finishDate.toISOString(),
         'CHECK_PERMISSIONS': 'N',
         'PROJECT': 'Y',
       }
 
-      // if (!this.isArchive) {
-      //   filter.CLOSED = 'N';
-      // }
+      if (!this.isArchive) {
+        filter.CLOSED = 'N';
+      }
 
 
       await this.callMethod(
@@ -461,106 +460,88 @@ export default {
           'tasks.task.list',
           {
             filter: {
-              'GROUP_ID': this.selectedGroups,
+              'CHECK_PERMISSIONS': 'N',
+              // 'GROUP_ID': this.selectedGroups,
+              'GROUP_ID': this.allGroups.map((el) => el.ID),
+              // "UF_AUTO_871282925230": 1,
+              // "UF_AUTO_747183418338": 1,
+              "TAG": "Стадия проекта"
             },
-            select: ['*']
+            select: ['ID', 'GROUP_ID', 'DEADLINE', 'TITLE', 'STATUS', 'CLOSED_DATE']
           }).then(function (res) {
         res.forEach(el => {
+          el['tasks'] ? el['tasks'].forEach((tsk) => tsk.type = 'stage') : el?.forEach((tsk) => tsk.type = 'stage')
           tasks = el['tasks'] ? tasks.concat(el['tasks']) : tasks.concat(el)
         });
       });
+
+      await this.callMethod(
+          'tasks.task.list',
+          {
+            filter: {
+              'CHECK_PERMISSIONS': 'N',
+              // 'GROUP_ID': this.selectedGroups,
+              'GROUP_ID': this.allGroups.map((el) => el.ID),
+              // "UF_AUTO_871282925230": 1,
+              // "UF_AUTO_747183418338": 1,
+              "TAG": "Финал"
+            },
+            select: ['ID', 'GROUP_ID', 'DEADLINE', 'TITLE', 'STATUS', 'CLOSED_DATE']
+          }).then(function (res) {
+        res.forEach(el => {
+          el['tasks'] ? el['tasks'].forEach((tsk) => tsk.type = 'final') : el?.forEach((tsk) => tsk.type = 'final')
+          tasks = el['tasks'] ? tasks.concat(el['tasks']) : tasks.concat(el)
+        });
+      });
+
+
       return tasks;
     },
-    calculateTime(result) {
 
-      result.timeEstimate = 0;
-      result.timeSpent = 0;
-      result.amount = 0;
+    async fetchLeaders(leadersId) {
+      let result = [];
+      await this.callMethod(
+          'user.get', {
+            FILTER: {ID: leadersId, CHECK_PERMISSIONS: 'N',}
+          }
+      ).then(function (res) {
+        result = res
+      });
 
-      result.forEach((group) => {
-        group.timeEstimate = 0;
-        group.timeSpent = 0;
-        group.amount = 0;
-
-        group.users.forEach((user) => {
-          user.timeEstimate = 0;
-          user.timeSpent = 0;
-          user.amount = 0;
-          user.tasks.forEach((task) => {
-            if (Array.isArray(task)) task = task[0];
-            let userId = task.responsibleId;
-            user.timeEstimate += Number(task.timeEstimate);
-            // if (this.userOptions.allUsersLogs) {
-            task.timeSpentInLogs = 0;
-            task.logs.forEach((telm) => {
-              userId = telm.USER_ID;
-              task.timeSpentInLogs += Number.parseInt(telm.SECONDS)
-            })
-            // }
-            user.timeSpent += Number(task.timeSpentInLogs);
-            if (window.isSuper) {
-              let savedUser = this.users.find((usr) => userId === usr.id)
-              if (savedUser && Number.isInteger(Number(savedUser.hourRate))) {
-                task.amount = Math.round((Number(task.timeSpentInLogs) / 60 / 60 * savedUser.hourRate) * 100) / 100
-              } else {
-                if (!this.usersWithoutHourRate.find((usr) => user.name === usr)) {
-                  this.usersWithoutHourRate.push(user.name)
-                }
-                task.amount = 0
-              }
-            }
-            user.amount += task.amount;
-          })
-          group.timeEstimate += Number(user.timeEstimate)
-          group.timeSpent += Number(user.timeSpent);
-          group.amount += user.amount;
-        })
-        result.timeEstimate += Number(group.timeEstimate)
-        result.timeSpent += Number(group.timeSpent);
-        result.amount += group.amount;
-      })
-
-      return result;
+      return result
     },
+
+
     async createReport() {
-      let data = await this.collectData();
-      data = this.calculateTime(data);
-      this.items = data;
+
+      this.items = []
+
+      let tasks = this.allTasks;
+      let leaders = this.selectedLeaders.length ? this.selectedLeaders : this.leadersList;
+      let groups = this.selectedGroups.length ? this.selectedGroups : this.allGroups;
+
+      groups.forEach((prj) => prj.stages = tasks.filter((tsk) => prj.ID === tsk.groupId))
+      leaders.forEach((el) => el.projects = groups.filter((prj) => prj.OWNER_ID === el.ID))
+
+      this.allItems = JSON.parse(JSON.stringify(leaders));
+      leaders.forEach((usr) => usr.projects = usr.projects.filter(prj => prj.stages.length));
+
+      this.items = leaders.filter((usr) => usr.projects?.length && usr.projects.filter(prj => prj.stages.length).length);
     }
   },
 
 
   async created() {
-    // console.log(12345)
-    // await this.callMethod(
-    //     'crm.activity.list',
-    //     {
-    //
-    //       select:[ "*", "COMMUNICATIONS" ]
-    //     }).then(function (res) {
-    //   console.log(res)
-    // });
-
-    this.window = window;
-    // eslint-disable-next-line no-undef
-    if (BX24.userOption.get('options')) {
-      // eslint-disable-next-line no-undef
-      this.userOptions = JSON.parse(BX24.userOption.get('options'));
+    if (!window.isSuper) {
+      await this.$router.push({name: 'main'})
     }
+    this.allGroups = await this.fetchGroups();
+    this.allTasks = await this.fetchTasks();
 
-
-    // eslint-disable-next-line no-undef
-    if (window.isSuper) {
-      let options = await this.fetchSettings();
-      // eslint-disable-next-line no-undef
-      this.users = options.HOURRATE?.VALUE;
-    }
-
-    this.groupList = await this.fetchGroups();
-
-
-    this.groupCopy = [...this.groupList];
-    // await this.createReport()
+    this.stagesList = Array.from(new Set(this.allTasks.map((el) => el.title)));
+    this.groupList = Array.from(this.allGroups);
+    this.leadersList = await this.fetchLeaders(Array.from(new Set(this.allGroups.map((el) => el.OWNER_ID))));
+    await this.createReport()
 
 
   }
@@ -591,6 +572,27 @@ thead span {
 
 .collapse thead {
   visibility: collapse !important;
+}
+
+.expired {
+
+  color: red;
+}
+
+.closed-not-time {
+  background-color: #ff000021;
+}
+
+.closed-not-time:hover {
+  background-color: rgba(255, 0, 0, 0.4) !important;
+}
+
+.completed {
+  background-color: rgba(32, 255, 0, 0.26);
+}
+
+.completed:hover {
+  background-color: rgba(32, 255, 0, 0.5) !important;
 }
 
 </style>

@@ -1,13 +1,13 @@
 <template>
   <v-app>
     <v-overlay :value="isPreloader">
-      <span>Идет формирование отчёта...</span>
+      <span>Идет загрузка...</span>
     </v-overlay>
     <v-card hover color="primary" class="text-center">
       <h2 @click="window.location.reload(false)" style="color: white">Отчёт</h2>
       <!--      <h2 style="color: white">Отчёт</h2>-->
       <v-tabs dark background-color="primary" show-arrows centered>
-        <v-tab to="/stages">
+        <v-tab v-if="window.isSuper" to="/stages">
           Стадии
         </v-tab>
         <v-tab to="/main">
@@ -36,16 +36,27 @@ export default {
 
   components: {},
   async created() {
-
+    // this.getLocation();
     this.$eventBus.$on("preloader", () => this.isPreloader = !this.isPreloader);
     // eslint-disable-next-line no-undef
     // BX24.callMethod('entity.delete', {'ENTITY': 'SETTINGS'})
     // eslint-disable-next-line no-undef
 
 
-
   },
-  methods: {},
+  methods: {
+    // showPosition(position) {
+    //   alert("Широта: " + position.coords.latitude +
+    //       "Долгота: " + position.coords.longitude)
+    // },
+    // getLocation() {
+    //   if (navigator.geolocation) {
+    //     navigator.geolocation.getCurrentPosition(this.showPosition);
+    //   } else {
+    //     alert("Геолокация не поддерживается этим браузером.");
+    //   }
+    // }
+  },
   computed: {
     window: () => window,
   },

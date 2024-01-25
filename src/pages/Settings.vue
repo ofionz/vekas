@@ -153,7 +153,7 @@ animation-delay: 1s; "  type="error">
           </v-toolbar>
         </template>
         <template v-slot:item.name="{ item }">
-          <a style="text-decoration: none; color: rgba(0, 0, 0, 0.87)" target="_blank" :href="'https://ooovekas.bitrix24.ru/company/personal/user/'+item.id+'/'">
+          <a style="text-decoration: none; color: rgba(0, 0, 0, 0.87)" target="_blank" :href="'https://bitrix24.vekas.org/company/personal/user/'+item.id+'/'">
           <v-avatar class="mr-3" size="30">
 
             <img

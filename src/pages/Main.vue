@@ -129,7 +129,7 @@
               "
                       :alt="item.name"
                   /></v-avatar>
-                <v-subheader style="width: 30%"> {{ item.name }}</v-subheader>
+                <v-subheader style="width: 60%"> {{ item.name }}</v-subheader>
               </div>
             </template>
             <template v-slot:item.timeSpent="{ item }">
@@ -153,7 +153,7 @@
 
               <!--              {{ item.title}}-->
               <a target="_blank"
-                 :href="'https://ooovekas.bitrix24.ru/company/personal/user/'+ window.USER.ID + '/tasks/task/view/' + item.id + '/'">{{
+                 :href="'https://bitrix24.vekas.org/company/personal/user/'+ window.USER.ID + '/tasks/task/view/' + item.id + '/'">{{
                   item.title
                 }}</a>
             </template>
@@ -207,17 +207,17 @@ export default {
           value: 'createdDate'
         },
         {
-          width: '15vw',
+          width: '17vw',
           text: 'Время плановое',
           value: 'timeEstimate'
         },
         {
-          width: '15vw',
+          width: '17vw',
           text: 'Времени потрачено',
           value: 'timeSpentInLogs'
         },
         {
-          width: '15vw',
+          width: '17vw',
           text: window.isSuper ? 'Сумма' : ' ',
           value: window.isSuper ? 'amount' : ""
         }
@@ -229,17 +229,17 @@ export default {
           value: 'name'
         },
         {
-          width: '15vw',
+          width: '17vw',
           text: 'Время плановое',
           value: 'timeEstimate'
         },
         {
-          width: '15vw',
+          width: '17vw',
           text: 'Времени потрачено',
           value: 'timeSpent'
         },
         {
-          width: '15vw',
+          width: '17vw',
           text: window.isSuper ? 'Сумма' : ' ',
           value: window.isSuper ? 'amount' : ''
         },
@@ -253,11 +253,11 @@ export default {
           sortable: false,
           value: 'name',
         },
-        {width: '15vw', text: 'Время план', value: 'timeEstimate'},
-        {width: '15vw', text: 'Времени потрачено', value: 'timeSpent'},
+        {width: '17vw', text: 'Время план', value: 'timeEstimate'},
+        {width: '17vw', text: 'Времени потрачено', value: 'timeSpent'},
 
         {
-          width: '15vw',
+          width: '17vw',
           text: window.isSuper ? 'Сумма' : ' ',
           value: window.isSuper ? 'amount' : ''
         },
@@ -374,6 +374,7 @@ export default {
         for (const t of time) {
           let curTask = tasks.find((tsk) => t.TASK_ID === tsk.id)
           if (curTask.groupId === group.ID) {
+
             let usr = tasks.find((tsk) => t.USER_ID === tsk.responsibleId)?.responsible;
             if (usr) result[group.ID].users[t.USER_ID] = JSON.parse(JSON.stringify(usr));
             else {
@@ -533,11 +534,8 @@ export default {
   async created() {
     // console.log(12345)
     // await this.callMethod(
-    //     'crm.activity.list',
-    //     {
-    //
-    //       select:[ "*", "COMMUNICATIONS" ]
-    //     }).then(function (res) {
+    //     'task.item.gettags',
+    //     {TASK_ID:81},).then(function (res) {
     //   console.log(res)
     // });
 

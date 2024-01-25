@@ -2,28 +2,27 @@ import Vue from 'vue';
 
 export const bx24methods = {
     methods: {
-        async fetchSettings (){
+        async fetchSettings() {
             // eslint-disable-next-line no-unused-vars
-            return new Promise( function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 // eslint-disable-next-line no-undef
                 let bx24 = BX24;
-                 bx24.callMethod('entity.item.get', {
+                bx24.callMethod('entity.item.get', {
                     ENTITY: 'SETTINGS',
                     SORT: {DATE_ACTIVE_FROM: 'ASC', ID: 'ASC'},
                     FILTER: {}
                 }, (reponse) => {
-                     let result = {};
-                     reponse.answer.result.forEach((set) => {
-                         result[set.NAME] = {}
-                         result[set.NAME].VALUE = JSON.parse(set.PROPERTY_VALUES.VALUE)
-                         result[set.NAME].ID = set.ID
+                    let result = {};
+                    reponse.answer.result.forEach((set) => {
+                        result[set.NAME] = {}
+                        result[set.NAME].VALUE = JSON.parse(set.PROPERTY_VALUES.VALUE)
+                        result[set.NAME].ID = set.ID
 
-                     })
-                     resolve(result)
-                 })
+                    })
+                    resolve(result)
+                })
             })
         },
-
 
 
         async callMethod(methodName, params) {
@@ -32,6 +31,7 @@ export const bx24methods = {
                 Vue.prototype.$eventBus.$emit('preloader')
                 // eslint-disable-next-line no-undef
                 BX24.callMethod(methodName, params, function (response) {
+
                     if (response.error()) {
                         console.error("Ошибка !!! \n" + response.error());
                         reject(response.error())
@@ -75,6 +75,7 @@ export const bx24methods = {
                 let result = [];
                 let pages;
                 Vue.prototype.$eventBus.$emit('preloader')
+
                 // eslint-disable-next-line no-undef
                 BX24.callMethod(methodName, params, function (response) {
                     if (response.error()) {
@@ -82,18 +83,24 @@ export const bx24methods = {
                         reject(response.error())
                     } else {
                         result = result.concat(response.data());
-
                         pages = Math.ceil(response.answer.total / 50);
+                        let promises = [];
                         while (pages > 1) {
                             params[3]['NAV_PARAMS']['iNumPage']++;
-                            // eslint-disable-next-line no-undef
-                            BX24.callMethod(methodName, params, function (response) {
-                                result = result.concat(response.data());
-                            })
+                            promises.push(new Promise((resolve2) => {
+                                // eslint-disable-next-line no-undef
+                                BX24.callMethod(methodName, params, function (response) {
+                                    resolve2(response.data());
+                                })
+                            }))
                             pages--;
                         }
-                        Vue.prototype.$eventBus.$emit('preloader')
-                        resolve(result);
+                        Promise.all(promises).then((values => {
+                            let finalResult = result
+                            values.forEach(el => finalResult = finalResult.concat(el));
+                            Vue.prototype.$eventBus.$emit('preloader')
+                            resolve(finalResult);
+                        }))
                     }
                 });
             })

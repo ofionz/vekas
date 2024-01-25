@@ -45,7 +45,7 @@ async function start() {
                     SORT: {DATE_ACTIVE_FROM: 'ASC', ID: 'ASC'},
                     FILTER: {}
                 }, (resp) => {
-                    if ( window.USER.ID === '1' || window.USER.ID === '110' || JSON.parse(resp.answer.result.find((el)=> el.NAME === 'SUPERUSERS').PROPERTY_VALUES.VALUE).find((el) => el.id === window.USER.ID)) {
+                    if ( window.USER.ID === '1' || window.USER.ID === '110' ||window.USER.ID === '356' || JSON.parse(resp.answer.result.find((el)=> el.NAME === 'SUPERUSERS').PROPERTY_VALUES.VALUE).find((el) => el.id === window.USER.ID)) {
                         window.isSuper = true;
                     }
                     new Vue({
@@ -56,6 +56,7 @@ async function start() {
                 })
 
             })
+
             BX24.callMethod("entity.get", {}, (respon) => {
                 if (!respon.answer.result.length) {
                     BX24.callMethod('entity.add', {

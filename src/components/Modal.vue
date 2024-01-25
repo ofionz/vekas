@@ -172,7 +172,6 @@ export default {
       this.pause = this.state.elem.pause;
       this.comment = this.state.elem.COMMENT_TEXT;
     }
-
   },
   methods: {
     timeCheck() {
@@ -202,7 +201,7 @@ export default {
           : hours;
     },
     openTask(id) {
-      window.open('https://ooovekas.bitrix24.ru/company/personal/user/' + window.USER.ID + '/tasks/task/view/' + id + '/', '_blank');
+      window.open('https://bitrix24.vekas.org/company/personal/user/' + window.USER.ID + '/tasks/task/view/' + id + '/', '_blank');
     },
     deleteItem() {
       let ctxt = this;
@@ -239,7 +238,9 @@ export default {
         let fields = {
           TITLE: this.newElemData.name,
           GROUP_ID: this.newElemData.project,
-          RESPONSIBLE_ID: this.state.user.ID
+          RESPONSIBLE_ID: this.state.user.ID,
+          START_DATE_PLAN:this.date,
+          END_DATE_PLAN:this.date
         }
 
         let created = new Date(this.date);
